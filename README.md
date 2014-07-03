@@ -1,5 +1,5 @@
 
-# Whirr Configuration #i
+# Whirr Configuration #
 
 1. This is the README for 0.7.1 version of Whirr.
 2. This version of Whirr works with CDH - Cloudera Hadoop Distribution 0.3x
@@ -16,7 +16,6 @@ export WHIRR_PROVIDER=aws-ec2
 export WHIRR_IDENTITY=$AWS_ACCESS_KEY_ID
 export WHIRR_CREDENTIAL=$AWS_SECRET_ACCESS_KEY
 ````
-
 6. Generate your SSH key
 ````
 ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa_whirr
