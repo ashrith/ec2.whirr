@@ -23,7 +23,7 @@
 7. Start and stop the cluster as follows (the executable "whirr" will vary, depending on where you are trying to execute it from)
 ````
 	whirr.0.7.1/bin/whirr launch-cluster --config ~/.whirr/w7.whirr.rhipe.properties
-	whirr.0.7.1/bin/whirr launch-cluster --config ~/.whirr/w7.whirr.rhipe.properties
+	whirr.0.7.1/bin/whirr destroy-cluster --config ~/.whirr/w7.whirr.rhipe.properties
 ````
 8. After the start up make sure you add port 3838 and 8787 to your security group on AWS
 8a. From this you will have to login to your aws dashboard, click on security groups
