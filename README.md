@@ -6,7 +6,7 @@
 
 ## Manual Installation of Whirr ##
 1. If you decide to manually install Whirr then download Whirr from this place
-	--> http://www.poolsaboveground.com/apache/whirr/whirr-0.7.1/whirr-0.7.1.tar.gz
+	--> http://archive.apache.org/dist/whirr/whirr-0.7.1/whirr-0.7.1.tar.gz
 2. Extract the files "tar -xvzf whirr-0.7.1.tar.gz"
 3. copy the folder "functions" from this git repo into whirr.0.7.1 folder (it should be extracted)"
 4. Next create a ".whirr" folder in your home directory "~/.whirr" and drop the w7.whirr.rhipe.properties file into that. 
