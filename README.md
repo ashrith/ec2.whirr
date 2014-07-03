@@ -1,8 +1,9 @@
 
 # Whirr Configuration #
 
-1. This is the README for 0.8.2 version of Whirr.
-2. This version of Whirr works with CDH - Cloudera Hadoop Distribution 0.4x
+1. The master version is the latest stable version, now it is 0.8.2
+2. This is the README for 0.8.2 version of Whirr.
+3. This version of Whirr works with CDH - Cloudera Hadoop Distribution 0.4x
 
 ## Install Whirr ##
 1. There are multiple ways to install Whirr
