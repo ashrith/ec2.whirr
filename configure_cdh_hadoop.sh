@@ -26,37 +26,26 @@ function configure_cdh_hadoop() {
   ROLES=$1
   shift
   
-  case $CLOUD_PROVIDER in
-    ec2 | aws-ec2 )
-      # Alias /mnt as /data
-      if [ ! -e /data ]; then ln -s /mnt /data; fi
-      ;;
-    *)
-      ;;
-  esac
+  REPO=${REPO:-cdh4}
+  CDH_MAJOR_VERSION=$(echo $REPO | sed -e 's/cdh\([0-9]\).*/\1/')
+  if [ $CDH_MAJOR_VERSION = "4" ]; then
+    HADOOP=hadoop
+    HADOOP_CONF_DIR=/etc/$HADOOP/conf.dist
+    HDFS_PACKAGE_PREFIX=hadoop-hdfs
+    MAPREDUCE_PACKAGE_PREFIX=hadoop-0.20-mapreduce
+  else
+    HADOOP=hadoop-${HADOOP_VERSION:-0.20}
+    HADOOP_CONF_DIR=/etc/$HADOOP/conf.dist
+    HDFS_PACKAGE_PREFIX=hadoop-${HADOOP_VERSION:-0.20}
+    MAPREDUCE_PACKAGE_PREFIX=hadoop-${HADOOP_VERSION:-0.20}  
+  fi
   
-  REPO=${REPO:-cdh3}
-  HADOOP=hadoop-${HADOOP_VERSION:-0.20}
-  HADOOP_CONF_DIR=/etc/$HADOOP/conf.dist
-  
-  mkdir -p /data/hadoop
-  chgrp hadoop /data/hadoop
-  chmod g+w /data/hadoop
-  mkdir /data/tmp
-  chmod a+rwxt /data/tmp
+  make_hadoop_dirs /data*
 
   # Copy generated configuration files in place
   cp /tmp/{core,hdfs,mapred}-site.xml $HADOOP_CONF_DIR
   cp /tmp/hadoop-env.sh $HADOOP_CONF_DIR
-
-  # Expose /metrics URL endpoint
-  cat > $HADOOP_CONF_DIR/hadoop-metrics.properties <<EOF
-# Exposes /metrics URL endpoint for metrics information.
-dfs.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
-mapred.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
-jvm.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
-rpc.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
-EOF
+  cp /tmp/hadoop-metrics.properties $HADOOP_CONF_DIR
 
   # Keep PID files in a non-temporary directory
   HADOOP_PID_DIR=$(. /tmp/hadoop-env.sh; echo $HADOOP_PID_DIR)
@@ -79,22 +68,23 @@ EOF
   chgrp -R hadoop $HADOOP_LOG_DIR
   chmod -R g+w $HADOOP_LOG_DIR
 
+  if [ $(echo "$ROLES" | grep "hadoop-namenode" | wc -l) -gt 0 ]; then
+    start_namenode
+  fi
+  
   for role in $(echo "$ROLES" | tr "," "\n"); do
     case $role in
-    hadoop-namenode)
-      start_namenode
-      ;;
     hadoop-secondarynamenode)
-      start_hadoop_daemon secondarynamenode
+      start_hadoop_daemon $HDFS_PACKAGE_PREFIX-secondarynamenode
       ;;
     hadoop-jobtracker)
-      start_hadoop_daemon jobtracker
+      start_hadoop_daemon $MAPREDUCE_PACKAGE_PREFIX-jobtracker
       ;;
     hadoop-datanode)
-      start_hadoop_daemon datanode
+      start_hadoop_daemon $HDFS_PACKAGE_PREFIX-datanode
       ;;
     hadoop-tasktracker)
-      start_hadoop_daemon tasktracker
+      start_hadoop_daemon $MAPREDUCE_PACKAGE_PREFIX-tasktracker
       ;;
     esac
   done
@@ -104,20 +94,34 @@ additional_pkg_installer
   
 }
 
+function make_hadoop_dirs {
+  for mount in "$@"; do
+    if [ ! -e $mount/hadoop ]; then
+      mkdir -p $mount/hadoop
+      chgrp -R hadoop $mount/hadoop
+      chmod -R g+w $mount/hadoop
+    fi
+    if [ ! -e $mount/tmp ]; then
+      mkdir $mount/tmp
+      chmod a+rwxt $mount/tmp
+    fi
+  done
+}
+
 function start_namenode() {
   if which dpkg &> /dev/null; then
-    retry_apt_get -y install $HADOOP-namenode
+    retry_apt_get -y install $HDFS_PACKAGE_PREFIX-namenode
     AS_HDFS="su -s /bin/bash - hdfs -c"
     # Format HDFS
     [ ! -e /data/hadoop/hdfs ] && $AS_HDFS "$HADOOP namenode -format"
   elif which rpm &> /dev/null; then
-    retry_yum install -y $HADOOP-namenode
+    retry_yum install -y $HDFS_PACKAGE_PREFIX-namenode
     AS_HDFS="/sbin/runuser -s /bin/bash - hdfs -c"
     # Format HDFS
     [ ! -e /data/hadoop/hdfs ] && $AS_HDFS "$HADOOP namenode -format"
   fi
 
-  service $HADOOP-namenode start
+  service $HDFS_PACKAGE_PREFIX-namenode start
 
   $AS_HDFS "$HADOOP dfsadmin -safemode wait"
   $AS_HDFS "/usr/bin/$HADOOP fs -mkdir /user"
@@ -141,11 +145,11 @@ function start_namenode() {
 function start_hadoop_daemon() {
   daemon=$1
   if which dpkg &> /dev/null; then
-    retry_apt_get -y install $HADOOP-$daemon
+    retry_apt_get -y install $daemon
   elif which rpm &> /dev/null; then
-    retry_yum install -y $HADOOP-$daemon
+    retry_yum install -y $daemon
   fi
-  service $HADOOP-$daemon start
+  service $daemon start
 }
 
 function additional_pkg_installer() {
