@@ -10,7 +10,7 @@
 2. Extract the files "tar -xvzf whirr-0.7.1.tar.gz"
 3. copy the folder "functions" from this git repo into whirr.0.7.1 folder (it should be extracted)"
 4. Next create a ".whirr" folder in your home directory "~/.whirr" and drop the w7.whirr.rhipe.properties file into that. 
-5. Add your AWS credentials as environment variables
+5. Add your AWS credentials as environment variables and uncomment these variables in your w7.whirr.rhipe.properties file, or enter then in your w7.whirr.rhipe.properties file
 ````
 	export WHIRR_PROVIDER=aws-ec2
 	export WHIRR_IDENTITY=$AWS_ACCESS_KEY_ID
