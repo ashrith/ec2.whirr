@@ -11,23 +11,23 @@
 3. copy the folder "functions" from this git repo into whirr.0.7.1 folder (it should be extracted)"
 4. Next create a ".whirr" folder in your home directory "~/.whirr" and drop the w7.whirr.rhipe.properties file into that. 
 5. Add your AWS credentials as environment variables
-````
-export WHIRR_PROVIDER=aws-ec2
-export WHIRR_IDENTITY=$AWS_ACCESS_KEY_ID
-export WHIRR_CREDENTIAL=$AWS_SECRET_ACCESS_KEY
-````
+	````
+	export WHIRR_PROVIDER=aws-ec2
+	export WHIRR_IDENTITY=$AWS_ACCESS_KEY_ID
+	export WHIRR_CREDENTIAL=$AWS_SECRET_ACCESS_KEY
+	````
 6. Generate your SSH key
-````
-ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa_whirr
-````
+	````
+	ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa_whirr
+	````
 7. Start and stop the cluster as follows (the executable "whirr" will vary, depending on where you are trying to execute it from)
-````
-whirr.0.7.1/bin/whirr launch-cluster --config ~/.whirr/w7.whirr.rhipe.properties
-````
-````
-whirr.0.7.1/bin/whirr launch-cluster --config ~/.whirr/w7.whirr.rhipe.properties
-````
-8 After the start up make sure you add port 3838 and 8787 to your security group on AWS
+	````
+	whirr.0.7.1/bin/whirr launch-cluster --config ~/.whirr/w7.whirr.rhipe.properties
+	````
+	````
+	whirr.0.7.1/bin/whirr launch-cluster --config ~/.whirr/w7.whirr.rhipe.properties
+	````
+8. After the start up make sure you add port 3838 and 8787 to your security group on AWS
 8a. From this you will have to login to your aws dashboard, click on security groups
 8b. Go to Security groups, and select jclouds w7 rhipe
 8c. Click on actions and "edit inbound rules"
